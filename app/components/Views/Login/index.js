@@ -49,6 +49,7 @@ import {
 } from '../../../constants/test-ids';
 import { LoginOptionsSwitch } from '../../UI/LoginOptionsSwitch';
 import generateTestId from '../../../../wdio/utils/generateTestId';
+import { createRestoreWalletNavDetails } from '../RestoreWallet/RestoreWallet';
 
 const deviceHeight = Device.getDeviceHeight();
 const breakPoint = deviceHeight < 700;
@@ -348,6 +349,9 @@ class Login extends PureComponent {
           'Vault Corruption Error',
           strings('login.clean_vault_error'),
         );
+        // navigate to recovery flow
+        const { navigation } = this.props;
+        navigation.navigate(...createRestoreWalletNavDetails());
       } else {
         this.setState({ loading: false, error });
       }

@@ -44,6 +44,12 @@ const Routes = {
   SETTINGS: {
     CONTACT_FORM: 'ContactForm',
   },
+  VAULT_RECOVERY: {
+    ID: 'RestoreWallet',
+    RESTORE_WALLET: 'RestoreWallet',
+    WALLET_RESTORED: 'WalletRestored',
+    WALLET_RESET_NEEDED: 'WalletResetNeeded',
+  },
 };
 
 export default Routes;
