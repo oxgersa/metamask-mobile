@@ -50,6 +50,8 @@ import {
 import { LoginOptionsSwitch } from '../../UI/LoginOptionsSwitch';
 import generateTestId from '../../../../wdio/utils/generateTestId';
 import { createRestoreWalletNavDetails } from '../RestoreWallet/RestoreWallet';
+import { parseVaultValue } from '../../../util/validators';
+import { getVaultFromBackup } from '../../../core/backupVault';
 
 const deviceHeight = Device.getDeviceHeight();
 const breakPoint = deviceHeight < 700;
@@ -351,7 +353,25 @@ class Login extends PureComponent {
         );
         // navigate to recovery flow
         const { navigation } = this.props;
-        navigation.navigate(...createRestoreWalletNavDetails());
+
+        const keyringState = await getVaultFromBackup();
+
+        if (keyringState.vault) {
+          console.log({keyringState});
+          const vaultSeed = await parseVaultValue(
+            this.state.password,
+            keyringState.vault.toString(),
+          );
+
+          if (vaultSeed) {
+            // set
+            await SecureKeychain.setGenericPassword(
+              this.state.password,
+              SecureKeychain.TYPES.REMEMBER_ME,
+            );
+            navigation.navigate(...createRestoreWalletNavDetails());
+          }
+        }
       } else {
         this.setState({ loading: false, error });
       }
