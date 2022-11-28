@@ -39,7 +39,6 @@ import Analytics from '../../../core/Analytics/Analytics';
 import { MetaMetricsEvents } from '../../../core/Analytics';
 import AnalyticsV2 from '../../../util/analyticsV2';
 import TransactionHeader from '../../UI/TransactionHeader';
-import AccountInfoCard from '../../UI/AccountInfoCard';
 import TransactionReviewDetailsCard from '../../UI/TransactionReview/TransactionReviewDetailsCard';
 import AppConstants from '../../../core/AppConstants';
 import { UINT256_HEX_MAX_VALUE } from '../../../constants/transaction';
@@ -588,7 +587,6 @@ class ApproveTransactionReview extends PureComponent {
 
   renderDetails = () => {
     const {
-      host,
       tokenSymbol,
       spenderAddress,
       originalApproveAmount,
