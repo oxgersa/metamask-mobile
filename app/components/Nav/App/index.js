@@ -157,8 +157,8 @@ const OnboardingRootNav = () => (
 );
 
 const App = ({ selectedAddress, userLoggedIn }) => {
-  const animation = useRef(null);
-  const animationName = useRef(null);
+  const animationRef = useRef(null);
+  const animationNameRef = useRef(null);
   const opacity = useRef(new Animated.Value(1)).current;
   const authOnLoadAuthLock = useRef(false);
   const [navigator, setNavigator] = useState(undefined);
@@ -175,13 +175,14 @@ const App = ({ selectedAddress, userLoggedIn }) => {
   );
 
   useEffect(() => {
+    if (prevNavigator.current || !navigator) return;
     const appTriggeredAuth = async () => {
       const existingUser = await AsyncStorage.getItem(EXISTING_USER);
       try {
         if (existingUser && !authOnLoadAuthLock.current && selectedAddress) {
           await Authentication.appTriggeredAuth(selectedAddress);
         }
-
+        navigator.navigate('HomeNav');
         //Cancel auth if the existing user has not been set
       } catch (error) {
         await Authentication.logout(false);
@@ -191,11 +192,13 @@ const App = ({ selectedAddress, userLoggedIn }) => {
           `Unlock attempts: 1`,
         );
       } finally {
+        animationRef?.current?.play();
+        animationNameRef?.current?.play();
         authOnLoadAuthLock.current = true;
       }
     };
     appTriggeredAuth();
-  }, [authOnLoadAuthLock, selectedAddress]);
+  }, [authOnLoadAuthLock, navigator, selectedAddress]);
 
   const handleDeeplink = useCallback(({ error, params, uri }) => {
     if (error) {
@@ -313,11 +316,7 @@ const App = ({ selectedAddress, userLoggedIn }) => {
       } catch (error) {
         Logger.error(error);
       }
-
-      animation?.current?.play();
-      animationName?.current?.play();
     }
-
     startApp();
   }, []);
 
@@ -342,8 +341,8 @@ const App = ({ selectedAddress, userLoggedIn }) => {
     if (!animationPlayed) {
       return (
         <MetaMaskAnimation
-          animation={animation}
-          animationName={animationName}
+          animationRef={animationRef}
+          animationName={animationNameRef}
           opacity={opacity}
           onAnimationFinish={onAnimationFinished}
         />
