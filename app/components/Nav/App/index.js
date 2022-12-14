@@ -180,7 +180,7 @@ const App = ({ selectedAddress, userLoggedIn }) => {
       try {
         if (existingUser && selectedAddress) {
           await Authentication.appTriggeredAuth(selectedAddress);
-          navigator.replace('HomeNav');
+          navigator.replace(Routes.ONBOARDING.HOME_NAV);
         }
         //Cancel auth if the existing user has not been set
       } catch (error) {
@@ -409,7 +409,7 @@ const App = ({ selectedAddress, userLoggedIn }) => {
             }}
           >
             <Stack.Screen
-              name="Login"
+              name={Routes.ONBOARDING.LOGIN}
               component={Login}
               options={{ headerShown: false }}
             />
@@ -420,7 +420,7 @@ const App = ({ selectedAddress, userLoggedIn }) => {
             />
             {userLoggedIn && (
               <Stack.Screen
-                name="HomeNav"
+                name={Routes.ONBOARDING.HOME_NAV}
                 component={Main}
                 options={{ headerShown: false }}
               />
