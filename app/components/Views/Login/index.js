@@ -363,11 +363,16 @@ class Login extends PureComponent {
           );
 
           if (vaultSeed) {
-            // set
-            await SecureKeychain.setGenericPassword(
+            // get authType
+            // const { type } = await Authentication.getType();
+            await Authentication.storePassword(
               this.state.password,
-              SecureKeychain.TYPES.REMEMBER_ME,
+              AUTHENTICATION_TYPE.REMEMBER_ME,
             );
+            // await SecureKeychain.setGenericPassword(
+            //   this.state.password,
+            //   SecureKeychain.TYPES.REMEMBER_ME,
+            // );
             console.log('vault/ vaultSeed exists, navigating');
             navigation.navigate(...createRestoreWalletNavDetails());
           }
