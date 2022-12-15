@@ -52,6 +52,7 @@ import generateTestId from '../../../../wdio/utils/generateTestId';
 import { createRestoreWalletNavDetails } from '../RestoreWallet/RestoreWallet';
 import { parseVaultValue } from '../../../util/validators';
 import { getVaultFromBackup } from '../../../core/backupVault';
+import SecureKeychain from '../../../core/SecureKeychain';
 
 const deviceHeight = Device.getDeviceHeight();
 const breakPoint = deviceHeight < 700;
@@ -363,10 +364,10 @@ class Login extends PureComponent {
 
           if (vaultSeed) {
             // set
-            // await SecureKeychain.setGenericPassword(
-            //   this.state.password,
-            //   SecureKeychain.TYPES.REMEMBER_ME,
-            // );
+            await SecureKeychain.setGenericPassword(
+              this.state.password,
+              SecureKeychain.TYPES.REMEMBER_ME,
+            );
             console.log('vault/ vaultSeed exists, navigating');
             navigation.navigate(...createRestoreWalletNavDetails());
           }
