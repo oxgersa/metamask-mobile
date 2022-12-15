@@ -156,6 +156,11 @@ class AuthenticationService {
     password: string,
     authType: AUTHENTICATION_TYPE,
   ): Promise<void> => {
+    console.log(
+      'vault/ Authentication storePassword called with',
+      password,
+      authType,
+    );
     try {
       switch (authType) {
         case AUTHENTICATION_TYPE.BIOMETRIC:
@@ -188,7 +193,7 @@ class AuthenticationService {
   };
 
   /**
-   * Fetches the password from the keychain using the auth method it was origonally stored
+   * Fetches the password from the keychain using the auth method it was originally stored
    */
   getPassword = async () => await SecureKeychain.getGenericPassword();
 

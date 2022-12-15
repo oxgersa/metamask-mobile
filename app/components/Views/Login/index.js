@@ -289,6 +289,41 @@ class Login extends PureComponent {
     return false;
   };
 
+  handleVaultCorruption = async (error) => {
+    console.log('vault/ vault error thrown: ', error);
+    // navigate to recovery flow
+    const { navigation } = this.props;
+
+    const keyringState = await getVaultFromBackup();
+
+    if (keyringState.vault) {
+      console.log({ keyringState });
+      const vaultSeed = await parseVaultValue(
+        this.state.password,
+        keyringState.vault.toString(),
+      );
+
+      if (vaultSeed) {
+        // get authType
+        const { type } = await Authentication.componentAuthenticationType(
+          this.state.biometryChoice,
+          this.state.rememberMe,
+        );
+        console.log('vault/ type', type);
+        try {
+          await Authentication.storePassword(this.state.password, type);
+          console.log('vault/ vaultSeed exists, navigating');
+          navigation.navigate(...createRestoreWalletNavDetails());
+        } catch (e) {
+          console.log(
+            'vault/ Login Authentication.storePassword failed with the following error',
+            e,
+          );
+        }
+      }
+    }
+  };
+
   onLogin = async () => {
     const { password } = this.state;
     const { current: field } = this.fieldRef;
@@ -303,14 +338,12 @@ class Login extends PureComponent {
     );
 
     try {
-      // await Authentication.userEntryAuth(
-      //   password,
-      //   authType,
-      //   this.props.selectedAddress,
-      // );
+      await Authentication.userEntryAuth(
+        password,
+        authType,
+        this.props.selectedAddress,
+      );
 
-      // testing vault recovery flow
-      throw new Error('Error: Cannot unlock without a previous vault.');
       // Get onboarding wizard state
       const onboardingWizard = await DefaultPreference.get(ONBOARDING_WIZARD);
       if (onboardingWizard) {
@@ -349,39 +382,22 @@ class Login extends PureComponent {
       } else if (toLowerCaseEquals(error, VAULT_ERROR)) {
         const vaultCorruptionError = new Error('Vault Corruption Error');
         Logger.error(vaultCorruptionError, strings('login.clean_vault_error'));
-        console.log('vault/ vault error thrown: ', error);
-        // navigate to recovery flow
-        const { navigation } = this.props;
-
-        const keyringState = await getVaultFromBackup();
-
-        if (keyringState.vault) {
-          console.log({ keyringState });
-          const vaultSeed = await parseVaultValue(
-            this.state.password,
-            keyringState.vault.toString(),
-          );
-
-          if (vaultSeed) {
-            // get authType
-            // const { type } = await Authentication.getType();
-            await Authentication.storePassword(
-              this.state.password,
-              AUTHENTICATION_TYPE.REMEMBER_ME,
-            );
-            // await SecureKeychain.setGenericPassword(
-            //   this.state.password,
-            //   SecureKeychain.TYPES.REMEMBER_ME,
-            // );
-            console.log('vault/ vaultSeed exists, navigating');
-            navigation.navigate(...createRestoreWalletNavDetails());
-          }
-        }
+        await this.handleVaultCorruption(error);
       } else {
         console.log('vault/ failed to enter catch block with error:', error);
         this.setState({ loading: false, error });
       }
       Logger.error(error, 'Failed to unlock');
+    }
+  };
+
+  tempBreakTheVault = async () => {
+    console.log('vault/ tempBreakTheVault');
+    // testing vault recovery flow
+    try {
+      throw new Error('Error: Cannot unlock without a previous vault.');
+    } catch (error) {
+      await this.handleVaultCorruption(error);
     }
   };
 
@@ -542,6 +558,9 @@ class Login extends PureComponent {
                   {...generateTestId(Platform, RESET_WALLET_ID)}
                 >
                   {strings('login.reset_wallet')}
+                </Button>
+                <Button style={styles.goBack} onPress={this.tempBreakTheVault}>
+                  [Never merge] Break the vault
                 </Button>
               </View>
             </View>
