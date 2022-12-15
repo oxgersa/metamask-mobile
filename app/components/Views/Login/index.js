@@ -302,11 +302,14 @@ class Login extends PureComponent {
     );
 
     try {
-      await Authentication.userEntryAuth(
-        password,
-        authType,
-        this.props.selectedAddress,
-      );
+      // await Authentication.userEntryAuth(
+      //   password,
+      //   authType,
+      //   this.props.selectedAddress,
+      // );
+
+      // testing vault recovery flow
+      throw new Error('Error: Cannot unlock without a previous vault.');
       // Get onboarding wizard state
       const onboardingWizard = await DefaultPreference.get(ONBOARDING_WIZARD);
       if (onboardingWizard) {
@@ -343,21 +346,16 @@ class Login extends PureComponent {
         );
         this.setState({ loading: false });
       } else if (toLowerCaseEquals(error, VAULT_ERROR)) {
-        this.setState({
-          loading: false,
-          error: strings('login.clean_vault_error'),
-        });
-        Logger.error(
-          'Vault Corruption Error',
-          strings('login.clean_vault_error'),
-        );
+        const vaultCorruptionError = new Error('Vault Corruption Error');
+        Logger.error(vaultCorruptionError, strings('login.clean_vault_error'));
+        console.log('vault/ vault error thrown: ', error);
         // navigate to recovery flow
         const { navigation } = this.props;
 
         const keyringState = await getVaultFromBackup();
 
         if (keyringState.vault) {
-          console.log({keyringState});
+          console.log({ keyringState });
           const vaultSeed = await parseVaultValue(
             this.state.password,
             keyringState.vault.toString(),
@@ -365,14 +363,16 @@ class Login extends PureComponent {
 
           if (vaultSeed) {
             // set
-            await SecureKeychain.setGenericPassword(
-              this.state.password,
-              SecureKeychain.TYPES.REMEMBER_ME,
-            );
+            // await SecureKeychain.setGenericPassword(
+            //   this.state.password,
+            //   SecureKeychain.TYPES.REMEMBER_ME,
+            // );
+            console.log('vault/ vaultSeed exists, navigating');
             navigation.navigate(...createRestoreWalletNavDetails());
           }
         }
       } else {
+        console.log('vault/ failed to enter catch block with error:', error);
         this.setState({ loading: false, error });
       }
       Logger.error(error, 'Failed to unlock');
