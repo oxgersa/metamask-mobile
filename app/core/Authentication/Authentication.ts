@@ -156,11 +156,6 @@ class AuthenticationService {
     password: string,
     authType: AUTHENTICATION_TYPE,
   ): Promise<void> => {
-    console.log(
-      'vault/ Authentication storePassword called with',
-      password,
-      authType,
-    );
     try {
       switch (authType) {
         case AUTHENTICATION_TYPE.BIOMETRIC:
