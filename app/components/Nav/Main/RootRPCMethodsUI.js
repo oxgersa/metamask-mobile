@@ -717,6 +717,15 @@ const RootRPCMethodsUI = (props) => {
               metadata: { id },
             } = requestData;
 
+            // TODO: get the accounts values
+            AnalyticsV2.trackEvent(
+              MetaMetricsEvents.PERMISSION_REQUEST_STARTED,
+              {
+                totalAccounts: 0,
+                connectedAccounts: 0,
+              },
+            );
+
             props.navigation.navigate(
               ...createAccountConnectNavDetails({
                 hostInfo: requestData,
